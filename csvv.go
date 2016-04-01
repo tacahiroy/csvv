@@ -4,7 +4,7 @@
 
 // Copyright © 2016 Takahiro Yoshihara
 // All rights reserved.
-
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 // 1. Redistributions of source code must retain the above copyright
@@ -15,7 +15,7 @@
 // 3. Neither the name of the organization nor the
 // names of its contributors may be used to endorse or promote products
 // derived from this software without specific prior written permission.
-
+//
 // THIS SOFTWARE IS PROVIDED BY  "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -61,15 +61,15 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	var h map[string]int = map[string]int{}
+	var header map[string]int = map[string]int{}
 	for index, name := range row {
-		h[name] = index
+		header[name] = index
 	}
 
 	// Parse 2nd argument to determine which columns need to be got
 	var cols []string
 	for _, c := range strings.Split(os.Args[2], ",") {
-		if _, ok := h[c]; ok {
+		if _, ok := header[c]; ok {
 			cols = append(cols, c)
 		}
 	}
@@ -89,8 +89,8 @@ func main() {
 
 		var line []string
 		for _, col := range cols {
-			if _, ok := h[col]; ok {
-				line = append(line, rec[h[col]])
+			if _, ok := header[col]; ok {
+				line = append(line, rec[header[col]])
 			}
 		}
 		printCSV(line)
