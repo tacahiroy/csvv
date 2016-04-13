@@ -31,13 +31,21 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
 	"os"
+	// "strconv"
 	"strings"
+	// "unicode/utf8"
 )
 
-func printCSV(cols []string) {
+var (
+	useTab    = flag.Bool("t", false, "")
+	delimiter rune
+)
+
+func printLine(cols []string) {
 	fmt.Println(strings.Join(cols, ","))
 }
 
@@ -47,7 +55,15 @@ func main() {
 		return
 	}
 
-	csvfile, err := os.Open(os.Args[1])
+	flag.Parse()
+
+	if *useTab {
+		delimiter = '\t'
+	} else {
+		delimiter = ','
+	}
+
+	csvfile, err := os.Open(flag.Arg(0))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -55,6 +71,7 @@ func main() {
 
 	defer csvfile.Close()
 	reader := csv.NewReader(csvfile)
+	reader.Comma = delimiter
 
 	// Get all headers. assuming the first line is header line
 	row, err := reader.Read()
@@ -68,14 +85,14 @@ func main() {
 
 	// Parse 2nd argument to determine which columns need to be got
 	var cols []string
-	for _, c := range strings.Split(os.Args[2], ",") {
+	for _, c := range strings.Split(flag.Arg(1), ",") {
 		if _, ok := header[c]; ok {
 			cols = append(cols, c)
 		}
 	}
 
 	// header
-	printCSV(cols)
+	printLine(cols)
 
 	// Parse body
 	for {
@@ -93,6 +110,6 @@ func main() {
 				line = append(line, rec[header[col]])
 			}
 		}
-		printCSV(line)
+		printLine(line)
 	}
 }
