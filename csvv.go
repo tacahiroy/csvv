@@ -35,15 +35,32 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	// "strconv"
 	"strings"
 	// "unicode/utf8"
 )
 
+const Version = "0.0.3"
+
 var (
 	useTab    = flag.Bool("t", false, "")
 	delimiter rune
 )
+
+func usage() {
+	var app = path.Base(os.Args[0])
+
+	fmt.Printf(`%s version %s
+
+  %s [OPTIONS] /path/to/input-file field1[,field2...]
+
+  Options:
+  -t true|false	: Use Tab (0x09) for the field separator
+
+	`, app, Version, app)
+	os.Exit(1)
+}
 
 func printLine(cols []string) {
 	fmt.Println(strings.Join(cols, ","))
@@ -51,7 +68,7 @@ func printLine(cols []string) {
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Println("Usage: csvv CSV-FILE col1[,col2,col3 ...]")
+		usage()
 		return
 	}
 
