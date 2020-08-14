@@ -36,16 +36,16 @@ import (
 	"io"
 	"os"
 	"path"
-	// "strconv"
 	"strings"
-	// "unicode/utf8"
 )
 
+// Version represents version of the app
 const Version = "0.0.3"
 
 var (
-	useTab    = flag.Bool("t", false, "")
-	delimiter rune
+	useTab      bool
+	listHeaders bool
+	delimiter   string
 )
 
 func usage() {
@@ -56,28 +56,32 @@ func usage() {
   %s [OPTIONS] /path/to/input-file field1[,field2...]
 
   Options:
-  -t true|false	: Use Tab (0x09) for the field separator
-
+  -t Use Tab (0x09) for the field separator
+  -l List header names
 	`, app, Version, app)
 	os.Exit(1)
 }
 
 func printLine(cols []string) {
-	fmt.Println(strings.Join(cols, ","))
+	fmt.Println(strings.Join(cols, delimiter))
+}
+
+func init() {
+	flag.BoolVar(&useTab, "t", false, "")
+	flag.BoolVar(&listHeaders, "l", false, "")
+	flag.Parse()
+
+	if useTab {
+		delimiter = "\t"
+	} else {
+		delimiter = ","
+	}
 }
 
 func main() {
 	if len(os.Args) < 3 {
 		usage()
 		return
-	}
-
-	flag.Parse()
-
-	if *useTab {
-		delimiter = '\t'
-	} else {
-		delimiter = ','
 	}
 
 	csvfile, err := os.Open(flag.Arg(0))
@@ -88,7 +92,6 @@ func main() {
 
 	defer csvfile.Close()
 	reader := csv.NewReader(csvfile)
-	reader.Comma = delimiter
 
 	// Get all headers. assuming the first line is header line
 	row, err := reader.Read()
@@ -98,6 +101,13 @@ func main() {
 	var header map[string]int = map[string]int{}
 	for index, name := range row {
 		header[name] = index
+	}
+
+	if listHeaders {
+		for header := range header {
+			fmt.Println(header)
+		}
+		os.Exit(0)
 	}
 
 	// Parse 2nd argument to determine which columns need to be got
@@ -127,6 +137,7 @@ func main() {
 				line = append(line, rec[header[col]])
 			}
 		}
+
 		printLine(line)
 	}
 }
